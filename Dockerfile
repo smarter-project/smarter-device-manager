@@ -13,15 +13,11 @@ RUN echo $PATH;export CGO_LDFLAGS_ALLOW='-Wl,--unresolved-symbols=ignore-in-obje
 
 FROM alpine
 
-
-
 RUN apk update && apk upgrade
 
 WORKDIR /root
 
 COPY conf.yaml /root/config/conf.yaml
 COPY --from=build /go/bin/smarter-device-management /usr/bin/smarter-device-management
-
-
 
 CMD ["smarter-device-management","-logtostderr=true","-v=0"]

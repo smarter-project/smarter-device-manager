@@ -1,4 +1,4 @@
-// Copyright (c) 2019, ARM
+// Copyright (c) 2019, Arm Ltd
 
 package main
 
@@ -63,7 +63,7 @@ func dial(unixSocketPath string, timeout time.Duration) (*grpc.ClientConn, error
 	return c, nil
 }
 
-// Start starts the gRPC server of the device plugin
+// Start the gRPC server of the device plugin
 func (m *SmarterDevicePlugin) Start() error {
 	err := m.cleanup()
 	if err != nil {
@@ -92,7 +92,7 @@ func (m *SmarterDevicePlugin) Start() error {
 	return nil
 }
 
-// Stop stops the gRPC server
+// Stop the gRPC server
 func (m *SmarterDevicePlugin) Stop() error {
 	if m.server == nil {
 		return nil
@@ -105,7 +105,7 @@ func (m *SmarterDevicePlugin) Stop() error {
 	return m.cleanup()
 }
 
-// Register registers the device plugin for the given resourceName with Kubelet.
+// Register the device plugin for the given resourceName with Kubelet.
 func (m *SmarterDevicePlugin) Register(kubeletEndpoint, resourceName string) error {
 	conn, err := dial(kubeletEndpoint, 5*time.Second)
 	if err != nil {
@@ -192,13 +192,11 @@ func (m *SmarterDevicePlugin) healthcheck() {
 		disableHealthChecks = allHealthChecks
 	}
 
-	//ctx, cancel := context.WithCancel(context.Background())
 	_, cancel := context.WithCancel(context.Background())
 
 	var xids chan *pluginapi.Device
 	if !strings.Contains(disableHealthChecks, "xids") {
 		xids = make(chan *pluginapi.Device)
-		//go watchXIDs(ctx, m.devs, xids)
 	}
 
 	for {

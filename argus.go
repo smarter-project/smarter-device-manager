@@ -1,4 +1,4 @@
-// Copyright (c) 2019, ARM
+// Copyright (c) 2019, Arm Ltd
 
 package main
 

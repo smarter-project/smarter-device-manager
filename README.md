@@ -144,6 +144,6 @@ kubectl label node pike5 smarter-device-manager=enabled
 ```
 The following command should show the node resources in a similar form as shown in previous example:
 ```
-kubectl descrive node pike5
+kubectl describe node pike5
 ```
 

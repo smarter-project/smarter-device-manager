@@ -3,21 +3,21 @@
 ## Motivation
 
 In the IoT world, interaction with the external environment is the reason of existence.
-This interaction is done by acquiring data about the environment and possibly actuate to achieve the desire objective, with complexity ranging from a simple thermostat to a very complex industrial process control (i.e. chemical plant). In more practical terms and in resource constrained IoT environments, the main CPU interacts directly with those sensors and actuators and the OS (Linux in our case) provides an abstract view in the form of device drivers.
-Even though container runtime allows direct access to device drivers, containers running under Kubernetes are not expected to do so, in the cloud hardware independence is a very useful characteristic because it enhances mobility.
-Kubernetes primarily manages CPU, memory and storage and network with other resources not being managed.
-In IoT applications, applications can have direct access to sensors and actuators either directly by interfacing with a device driver on the kernel: digital I/O pins, temperature sensors, analog inputs, microphones, audio output, video cameras and many others or indirectly through hardware interfaces like serial ports, I2C, SPI, bluetooth, LoRa, USB and others.
-Controlled access to these devices are essential to enable a container-based IoT solution. Smarter-device-manager allows containers to have direct access to devices on the host in a secure way.
+This interaction is done by acquiring data about the environment and, possibly, actuating to achieve the desired objective, with complexity ranging from a simple thermostat to a very complex industrial process control (e.g. chemical plant). In more practical terms, the main CPU interacts directly with those sensors and actuators and the OS (Linux in our case) provides an abstract view in the form of device drivers.
+Even though the container runtime allows direct access to device drivers, containers running on Kubernetes in the cloud are not expected to do so since hardware independence is a very useful characteristic to enhance mobility.
+Kubernetes primarily manages CPU, memory, storage, and network, while leaving other resources unmanaged.
+In IoT environments, applications can have direct access to sensors and actuators, either directly by interfacing with a device driver on the kernel (e.g. digital I/O pins, temperature sensors, analog inputs, microphones, audio output, video cameras) or indirectly through hardware interfaces (like serial ports, I2C, SPI, bluetooth, LoRa, USB and others).
+Controlled access to these devices is essential to enable a container-based IoT solution. Smarter-device-manager allows containers to have direct access to host devices in a secure way.
 
-*Usage Model*
+## Usage Model
 
-The smarter-device-manager start by reading a configuration file (yn YAML format). This configuration file describes via regular expressions the files that identifies each device that should be exported and how many access can be done simultaneously. For example the configurations below find every V4L device (cameras, video tuners, etc...) available on the node, assuming the node has two camewras /dev/video0, /dev/video1 and adds them as smarter-devices/video0. smarter-devices/video1 as resources and enables up to 10 simulatenous access (up to 10 containers can request access to those devices simultaneously). 
+The smarter-device-manager starts by reading a YAML configuration file. This configuration file describes, using regular expressions, the files that identify each device that is to be exported and how many access can be done simultaneously. For example, the configuration below finds every V4L device (cameras, video tuners, etc...) available on the host node (/dev/video0, /dev/video1, etc), and adds them as resources (smarter-devices/video0, smarter-devices/video1, etc) that allow up to 10 simulatenous accesses (up to 10 containers can request access to those devices simultaneously). 
 ```
 - devicematch: ^video[0-9]*$
   nummaxdevices: 10
 ```
 
-The default config file provided will enable most of the devices available at a raspberry PI (1-4) or equivalent boards. I2C, SPI, video devices, sound and others are enabled. The config file can be replaced using a configmap to enable or disable access to different devices, like accelerators, GPUs, etc.
+The default config file provided will enable most of the devices available on a Raspberry Pi (vers 1-4) or equivalent boards. I2C, SPI, video devices, sound and others would be enabled. The config file can be replaced using a configmap to enable or disable access to different devices, like accelerators, GPUs, etc.
 
 The node will show the devices it recognizes as resources in the node object in Kubernetes. The example below shows a raspberry PI.
 ```
@@ -125,20 +125,20 @@ Allocated resources:
 Events:                      <none>
 ```
 
+## System Architecture
 
-*System Architecture*
-
-The smarter-device-manager is a container that when deployed reads the /dev directory and based on the provided configuration file located at "/root/config/conf.yaml" identifies which devices it can export. The container then uses the kubernets kubelet device plugin interface to inform the kubelet that those devices are available. Kubelet will use the plugin interface to ask the smarter-device-manager how to enable access to each device when a pod request access to that device. Smarter-device-manager uses the "--device" option of the OCI to add that device to the container /dev directory and adds that device to the device cgroup so the container.
+The smarter-device-manager is a container that, when deployed, reads the /dev directory and, based on the provided configuration file located at "/root/config/conf.yaml", identifies which devices it can export. The container then uses the Kubernetes kubelet device plugin interface to inform the kubelet that those devices are available. Kubelet will use the plugin interface to ask the smarter-device-manager how to enable access to each device when a pod requests access to that device. Smarter-device-manager uses the "--device" option of the OCI to add that device to the container /dev directory and adds that device to the device cgroup so the container.
 
 More than one smarter-device-manager can be used in a single node if required if they enable different devices. 
 
-*Enabling access*
+## Enabling Access
 
-A few examples of yaml files are provided that enables the smarter-device-manager to be deployed in a node. The file smarter-device-management-pod-<>.yaml deploys a single pod on a node, it is useful for testing. The file smarter-device-manager-<>.yaml provides aq deamonSet configuration that enables pods to be deployed in any node that contains the "smarter-device-manager=enabled" label. The following command inserts the daemonSet in Kubernetes. K3s and K8s put the unix sockets for the device plugin in different directories on the node so the *-k8s.yaml files should be used on Kubernetes and the *-k3s.yaml should be used on K3s.
+A few examples of yaml files are provided that enable the smarter-device-manager to be deployed in a node. The file smarter-device-management-pod-<>.yaml deploys a single pod on a node; this setup is useful for testing. The file smarter-device-manager-<>.yaml provides a deamonSet configuration that enables pods to be deployed in any node that contains the "smarter-device-manager=enabled" label. The following command inserts the daemonSet in Kubernetes. k3s and k8s put the unix sockets for the device plugin in different directories on the node so the \*-k8s.yaml files should be used on Kubernetes and the \*-k3s.yaml should be used on k3s.
+
 ```
 kubectl apply -f smarter-device-manager.yaml
 ```
-and the following command deploys a smarter-device-manager pod on a  node (pike5)
+and the following command deploys a smarter-device-manager pod on a node (pike5)
 ```
 kubectl label node pike5 smarter-device-manager=enabled
 ```

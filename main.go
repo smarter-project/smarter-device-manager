@@ -1,4 +1,4 @@
-// Copyright (c) 2019, ARM
+// Copyright (c) 2019, Arm Ltd
 
 package main
 
@@ -80,7 +80,6 @@ func main() {
 	glog.V(0).Info("Loading smarter-device-manager")
 
 	// Setting up the devices to check
-
         var desiredDevices []DesiredDevice
 	glog.V(0).Info("Reading configuration file ",confFileName)
         yamlFile, err := ioutil.ReadFile(confFileName)

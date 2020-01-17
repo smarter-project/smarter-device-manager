@@ -19,7 +19,7 @@ function printHelp() {
                 fi
                 if [ ${FLAG_USESQUASH} -gt 0 ] 
                 then
-                        echo "    -S # Do not squash images - the default is squash the images"
+                        echo "    -S # Do not squash images - the default is to squash the images"
                 else
                         echo "    -S # Squash images - the default is not to squash the images"
                 fi
@@ -36,14 +36,13 @@ DIRECTORY_TO_RUN=.
 
 ARCHS="linux/arm/v7"
 
-# If the user does not change it the images will be uploaded to the registry
+# Variable defaults
 FLAG_UPLOADIMAGES=1
 FLAG_USESQUASH=0
 FLAG_UPLOADMANIFEST=1
-
-# No changes to the image names
 ADDITIONAL_TAG=""
 ADDITIONAL_IMAGE_NAME=""
+PUSH_OPTION=""
 
 while getopts hA:B:MST:U name
 do
@@ -78,7 +77,7 @@ do
         esac
 done
 
-# We need docker to support manifest for multiarch, try so see if we have it
+# We need docker client to support manifest for multiarch, try so see if we have it enabled
 if [ ${FLAG_UPLOADMANIFEST} -gt 0 ]
 then
         if [ -e ~/.docker/config.json ]
@@ -94,7 +93,6 @@ EOF
         fi
 fi
 
-PUSH_OPTION=""
 if [ $FLAG_UPLOADIMAGES -gt 0 ]
 then
         PUSH_OPTION="--push"

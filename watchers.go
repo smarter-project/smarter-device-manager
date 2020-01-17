@@ -1,3 +1,5 @@
+// Copyright (c) 2019, Arm Ltd
+
 package main
 
 import (

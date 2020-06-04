@@ -18,6 +18,11 @@ import (
 
 var confFileName string
 
+const (
+        deviceFileType int = 0
+        nvidiaSysType int = 1
+)
+
 type DeviceInstance struct {
 	devicePlugin *SmarterDevicePlugin
 
@@ -25,6 +30,7 @@ type DeviceInstance struct {
 	socketName string
 	deviceFile string
 	numDevices uint
+        deviceType uint
 }
 
 type DesiredDevice struct {
@@ -46,8 +52,8 @@ func init() {
 	flag.Parse()
 }
 
-func readDevDirectory() (files []string, err error) {
-	f, err := os.Open("/dev")
+func readDevDirectory(dirToList string) (files []string, err error) {
+	f, err := os.Open(dirToList)
 	if err != nil {
 		return nil, err
 	}
@@ -93,34 +99,65 @@ func main() {
         }
 
 	glog.V(0).Info("Reading existing devices on /dev")
-	ExistingDevices, err := readDevDirectory()
+	ExistingDevices, err := readDevDirectory("/dev")
 	if err != nil {
 		glog.Errorf(err.Error())
 		os.Exit(1)
 	}
 
+	ExistingDevicesSys, err := readDevDirectory("/sys/devices")
+	if err != nil {
+		glog.Errorf(err.Error())
+		os.Exit(1)
+	}
 	var listDevicesAvailable []DeviceInstance
 
 	for _, deviceToTest := range desiredDevices {
-                glog.V(0).Infof("Checking devices %s on /dev",deviceToTest.DeviceMatch)
-		foundDevices,err := findDevicesPattern(ExistingDevices, deviceToTest.DeviceMatch)
-                if err != nil {
-                        glog.Errorf(err.Error())
-                        os.Exit(1)
-                }
+                if deviceToTest.DeviceMatch = "nvidia-gpu" {
+                        glog.V(0).Infof("Checking nvidia devices")
+                        foundDevices,err := findDevicesPattern(ExistingDevices, "gpu.[0-9]*")
+                        if err != nil {
+                                glog.Errorf(err.Error())
+                                os.Exit(1)
+                        }
 
-		// If found some create the devices entry
-		if len(foundDevices) > 0 {
-			for _, deviceToCreate := range foundDevices {
-				var newDevice DeviceInstance
-				newDevice.deviceName = "smarter-devices/" + deviceToCreate
-				newDevice.socketName = pluginapi.DevicePluginPath + "smarter-" + deviceToCreate + ".sock"
-				newDevice.deviceFile = "/dev/" + deviceToCreate
-				newDevice.numDevices = deviceToTest.NumMaxDevices
-				listDevicesAvailable = append(listDevicesAvailable, newDevice)
-                                glog.V(0).Infof("Creating device %s socket and %s name for %s",newDevice.deviceName,newDevice.deviceFile,deviceToTest.DeviceMatch)
-			}
-		}
+                        // If found some create the devices entry
+                        if len(foundDevices) > 0 {
+                                for _, deviceToCreate := range foundDevices {
+                                        var newDevice DeviceInstance
+                                        deviceId := TrimPrefix(deviceToCreate,"gpu.")
+                                        newDevice.deviceName = "smarter-devices/" + "nvidia-gpu" + deviceId
+                                        newDevice.socketName = pluginapi.DevicePluginPath + "smarter-" + d"nvidia-gpu" + deviceId + ".sock"
+                                        newDevice.deviceFile = deviceId
+                                        newDevice.numDevices = deviceToTest.NumMaxDevices
+                                        newDevice.deviceType = nvidiaSysType
+                                        listDevicesAvailable = append(listDevicesAvailable, newDevice)
+                                        glog.V(0).Infof("Creating device %s socket and %s name for %s",newDevice.deviceName,newDevice.deviceFile,deviceToTest.DeviceMatch)
+                                }
+                        }
+                }
+                else {
+                        glog.V(0).Infof("Checking devices %s on /dev",deviceToTest.DeviceMatch)
+                        foundDevices,err := findDevicesPattern(ExistingDevices, deviceToTest.DeviceMatch)
+                        if err != nil {
+                                glog.Errorf(err.Error())
+                                os.Exit(1)
+                        }
+
+                        // If found some create the devices entry
+                        if len(foundDevices) > 0 {
+                                for _, deviceToCreate := range foundDevices {
+                                        var newDevice DeviceInstance
+                                        newDevice.deviceType = deviceFileType
+                                        newDevice.deviceName = "smarter-devices/" + deviceToCreate
+                                        newDevice.socketName = pluginapi.DevicePluginPath + "smarter-" + deviceToCreate + ".sock"
+                                        newDevice.deviceFile = "/dev/" + deviceToCreate
+                                        newDevice.numDevices = deviceToTest.NumMaxDevices
+                                        listDevicesAvailable = append(listDevicesAvailable, newDevice)
+                                        glog.V(0).Infof("Creating device %s socket and %s name for %s",newDevice.deviceName,newDevice.deviceFile,deviceToTest.DeviceMatch)
+                                }
+                        }
+                }
 	}
 
 	glog.V(0).Info("Starting FS watcher.")
@@ -147,11 +184,20 @@ L:
 
 			var err error
 			for _, devicesInUse := range listDevicesAvailable {
-				devicesInUse.devicePlugin = NewSmarterDevicePlugin(devicesInUse.numDevices, devicesInUse.deviceFile, devicesInUse.deviceName, devicesInUse.socketName)
-				if err = devicesInUse.devicePlugin.Serve(); err != nil {
-					glog.V(0).Info("Could not contact Kubelet, retrying. Did you enable the device plugin feature gate?")
-					break
-				}
+                                switch devicesInUse.deviceType {
+                                case deviceFileType :
+                                        devicesInUse.devicePlugin = NewSmarterDevicePlugin(devicesInUse.numDevices, devicesInUse.deviceFile, devicesInUse.deviceName, devicesInUse.socketName)
+                                        if err = devicesInUse.devicePlugin.Serve(); err != nil {
+                                                glog.V(0).Info("Could not contact Kubelet, retrying. Did you enable the device plugin feature gate?")
+                                                break
+                                        }
+                                case nvidiaSysType :
+                                        devicesInUse.devicePlugin = NewSmarterDevicePlugin(devicesInUse.numDevices, devicesInUse.deviceFile, devicesInUse.deviceName, devicesInUse.socketName)
+                                        if err = devicesInUse.devicePlugin.Serve(); err != nil {
+                                                glog.V(0).Info("Could not contact Kubelet, retrying. Did you enable the device plugin feature gate?")
+                                                break
+                                        }
+                                }
 			}
 			if err != nil {
 				continue

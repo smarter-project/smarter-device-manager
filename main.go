@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strings"
 	"os"
 	"regexp"
 	"syscall"
@@ -19,18 +20,20 @@ import (
 var confFileName string
 
 const (
-        deviceFileType int = 0
-        nvidiaSysType int = 1
+        deviceFileType uint = 0
+        nvidiaSysType uint = 1
 )
 
 type DeviceInstance struct {
-	devicePlugin *SmarterDevicePlugin
+	devicePluginSmarter *SmarterDevicePlugin
+	devicePluginNvidia *NvidiaDevicePlugin
 
 	deviceName string
 	socketName string
 	deviceFile string
 	numDevices uint
         deviceType uint
+        deviceId   string
 }
 
 type DesiredDevice struct {
@@ -113,9 +116,9 @@ func main() {
 	var listDevicesAvailable []DeviceInstance
 
 	for _, deviceToTest := range desiredDevices {
-                if deviceToTest.DeviceMatch = "nvidia-gpu" {
+                if deviceToTest.DeviceMatch == "nvidia-gpu" {
                         glog.V(0).Infof("Checking nvidia devices")
-                        foundDevices,err := findDevicesPattern(ExistingDevices, "gpu.[0-9]*")
+                        foundDevices,err := findDevicesPattern(ExistingDevicesSys, "gpu.[0-9]*")
                         if err != nil {
                                 glog.Errorf(err.Error())
                                 os.Exit(1)
@@ -125,9 +128,10 @@ func main() {
                         if len(foundDevices) > 0 {
                                 for _, deviceToCreate := range foundDevices {
                                         var newDevice DeviceInstance
-                                        deviceId := TrimPrefix(deviceToCreate,"gpu.")
+                                        deviceId := strings.TrimPrefix(deviceToCreate,"gpu.")
                                         newDevice.deviceName = "smarter-devices/" + "nvidia-gpu" + deviceId
-                                        newDevice.socketName = pluginapi.DevicePluginPath + "smarter-" + d"nvidia-gpu" + deviceId + ".sock"
+                                        newDevice.deviceId = deviceId
+                                        newDevice.socketName = pluginapi.DevicePluginPath + "smarter-nvidia-gpu" + deviceId + ".sock"
                                         newDevice.deviceFile = deviceId
                                         newDevice.numDevices = deviceToTest.NumMaxDevices
                                         newDevice.deviceType = nvidiaSysType
@@ -135,8 +139,7 @@ func main() {
                                         glog.V(0).Infof("Creating device %s socket and %s name for %s",newDevice.deviceName,newDevice.deviceFile,deviceToTest.DeviceMatch)
                                 }
                         }
-                }
-                else {
+                } else {
                         glog.V(0).Infof("Checking devices %s on /dev",deviceToTest.DeviceMatch)
                         foundDevices,err := findDevicesPattern(ExistingDevices, deviceToTest.DeviceMatch)
                         if err != nil {
@@ -177,23 +180,30 @@ L:
 	for {
 		if restart {
 			for _, devicesInUse := range listDevicesAvailable {
-				if devicesInUse.devicePlugin != nil {
-					devicesInUse.devicePlugin.Stop()
-				}
+                                switch devicesInUse.deviceType {
+                                case deviceFileType :
+                                        if devicesInUse.devicePluginSmarter != nil {
+                                                devicesInUse.devicePluginSmarter.Stop()
+                                        }
+                                case nvidiaSysType :
+                                        if devicesInUse.devicePluginNvidia != nil {
+                                                devicesInUse.devicePluginNvidia.Stop()
+                                        }
+                                }
 			}
 
 			var err error
 			for _, devicesInUse := range listDevicesAvailable {
                                 switch devicesInUse.deviceType {
                                 case deviceFileType :
-                                        devicesInUse.devicePlugin = NewSmarterDevicePlugin(devicesInUse.numDevices, devicesInUse.deviceFile, devicesInUse.deviceName, devicesInUse.socketName)
-                                        if err = devicesInUse.devicePlugin.Serve(); err != nil {
+                                        devicesInUse.devicePluginSmarter = NewSmarterDevicePlugin(devicesInUse.numDevices, devicesInUse.deviceFile, devicesInUse.deviceName, devicesInUse.socketName)
+                                        if err = devicesInUse.devicePluginSmarter.Serve(); err != nil {
                                                 glog.V(0).Info("Could not contact Kubelet, retrying. Did you enable the device plugin feature gate?")
                                                 break
                                         }
                                 case nvidiaSysType :
-                                        devicesInUse.devicePlugin = NewSmarterDevicePlugin(devicesInUse.numDevices, devicesInUse.deviceFile, devicesInUse.deviceName, devicesInUse.socketName)
-                                        if err = devicesInUse.devicePlugin.Serve(); err != nil {
+                                        devicesInUse.devicePluginNvidia = NewNvidiaDevicePlugin(devicesInUse.deviceName,"NVIDIA_VISIBLE_DEVICES", devicesInUse.socketName, devicesInUse.deviceId)
+                                        if err = devicesInUse.devicePluginNvidia.Serve(); err != nil {
                                                 glog.V(0).Info("Could not contact Kubelet, retrying. Did you enable the device plugin feature gate?")
                                                 break
                                         }
@@ -224,9 +234,16 @@ L:
 			default:
 				glog.V(0).Infof("Received signal \"%v\", shutting down.", s)
 				for _, devicesInUse := range listDevicesAvailable {
-					if devicesInUse.devicePlugin != nil {
-						devicesInUse.devicePlugin.Stop()
-					}
+                                        switch devicesInUse.deviceType {
+                                        case deviceFileType :
+                                                if devicesInUse.devicePluginSmarter != nil {
+                                                        devicesInUse.devicePluginSmarter.Stop()
+                                                }
+                                        case nvidiaSysType :
+                                                if devicesInUse.devicePluginNvidia != nil {
+                                                        devicesInUse.devicePluginNvidia.Stop()
+                                                }
+                                        }
 				}
 				break L
 			}

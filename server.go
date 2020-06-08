@@ -37,7 +37,7 @@ type SmarterDevicePlugin struct {
 // NewSmarterDevicePlugin returns an initialized SmarterDevicePlugin
 func NewSmarterDevicePlugin(nDevices uint, deviceFilename string, resourceIdentification string, serverSock string) *SmarterDevicePlugin {
 	return &SmarterDevicePlugin{
-		devs:         getDevices(uint(10)),
+		devs:         getDevices(nDevices),
 		socket:       serverSock,
 		deviceFile:   deviceFilename,
 		resourceName: resourceIdentification,

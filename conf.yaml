@@ -24,3 +24,5 @@
   nummaxdevices: 1
 - devicematch: ^ttyS[0-9]*$
   nummaxdevices: 1
+- devicematch: nvidia-gpu
+  nummaxdevices: 10

@@ -15,7 +15,7 @@ spec:
   nodeName: <replace with node to run>
   containers:
   - name: smarter-device-manager
-    image: registry.gitlab.com/arm-research/smarter/smarter-device-manager/smarter-device-manager:20191204204613
+    image: registry.gitlab.com/arm-research/smarter/smarter-device-manager/smarter-device-manager:IMAGE_ID
     imagePullPolicy: IfNotPresent
     securityContext:
       allowPrivilegeEscalation: false
@@ -33,6 +33,8 @@ spec:
         mountPath: /var/lib/kubelet/device-plugins
       - name: dev-dir
         mountPath: /dev
+      - name: sys-dir
+        mountPath: /sys
   volumes:
     - name: device-plugin
       hostPath:
@@ -40,4 +42,7 @@ spec:
     - name: dev-dir
       hostPath:
             path: /dev
-      terminationGracePeriodSeconds: 30
+    - name: sys-dir
+      hostPath:
+            path: /sys
+  terminationGracePeriodSeconds: 30

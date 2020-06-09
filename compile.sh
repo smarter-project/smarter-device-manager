@@ -34,10 +34,10 @@ REPOSITORY_NAME="registry.gitlab.com/arm-research/smarter/smarter-device-manager
 IMAGE_NAME="smarter-device-manager"
 DIRECTORY_TO_RUN=.
 
-ARCHS="linux/arm/v7"
+ARCHS="linux/arm64"
 
 # Variable defaults
-FLAG_UPLOADIMAGES=1
+FLAG_UPLOADIMAGES=0
 FLAG_USESQUASH=0
 FLAG_UPLOADMANIFEST=1
 ADDITIONAL_TAG=""
@@ -96,6 +96,8 @@ fi
 if [ $FLAG_UPLOADIMAGES -gt 0 ]
 then
         PUSH_OPTION="--push"
+else
+        PUSH_OPTION="--load"
 fi
         
 docker buildx build  -t "${REPOSITORY_NAME}${IMAGE_NAME}${ADDITIONAL_IMAGE_NAME}:${BUILD_TAG}" --platform=${ARCHS} ${PUSH_OPTION} .

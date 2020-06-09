@@ -12,7 +12,7 @@ spec:
   hostNetwork: true
   dnsPolicy: ClusterFirstWithHostNet
   hostname: smarter-device-management
-  nodeName: <replace with node to run>
+  nodeName: smarter-jetson-xavier-4bcc2584
   containers:
   - name: smarter-device-manager
     image: registry.gitlab.com/arm-research/smarter/smarter-device-manager/smarter-device-manager:IMAGE_ID
@@ -33,11 +33,21 @@ spec:
         mountPath: /var/lib/kubelet/device-plugins
       - name: dev-dir
         mountPath: /dev
+      - name: sys-dir
+        mountPath: /sys
+      - name: config
+        mountPath: /root/config
   volumes:
     - name: device-plugin
       hostPath:
-        path: /var/lib/kubelet/device-plugins
+        path: /var/lib/rancher/k3s/agent/kubelet/device-plugins
     - name: dev-dir
       hostPath:
             path: /dev
-      terminationGracePeriodSeconds: 30
+    - name: sys-dir
+      hostPath:
+            path: /sys
+    - name: config
+      configMap:
+            name: smarter-device-manager-xavier
+  terminationGracePeriodSeconds: 30

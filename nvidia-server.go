@@ -3,7 +3,7 @@
 package main
 
 import (
-	"fmt"
+        "flag"
 	"net"
 	"os"
 	"path"
@@ -16,17 +16,16 @@ import (
 	pluginapi "k8s.io/kubernetes/pkg/kubelet/apis/deviceplugin/v1beta1"
 )
 
-const (
-	envDisableHealthChecks = "DP_DISABLE_HEALTHCHECKS"
-	allHealthChecks        = "xids"
-)
+var passDeviceSpecs = flag.Bool("pass-device-specs", false, "pass the list of DeviceSpecs to the kubelet on Allocate()")
 
-// SmarterDevicePlugin implements the Kubernetes device plugin API
-type SmarterDevicePlugin struct {
+// NvidiaDevicePlugin implements the Kubernetes device plugin API
+type NvidiaDevicePlugin struct {
 	devs         []*pluginapi.Device
 	socket       string
-	deviceFile   string
-	resourceName string
+	resourceName   string
+	allocateEnvvar string
+        id string
+
 
 	stop   chan interface{}
 	health chan *pluginapi.Device
@@ -34,21 +33,22 @@ type SmarterDevicePlugin struct {
 	server *grpc.Server
 }
 
-// NewSmarterDevicePlugin returns an initialized SmarterDevicePlugin
-func NewSmarterDevicePlugin(nDevices uint, deviceFilename string, resourceIdentification string, serverSock string) *SmarterDevicePlugin {
-	return &SmarterDevicePlugin{
-		devs:         getDevices(nDevices),
-		socket:       serverSock,
-		deviceFile:   deviceFilename,
-		resourceName: resourceIdentification,
+// NewNvidiaDevicePlugin returns an initialized NvidiaDevicePlugin
+func NewNvidiaDevicePlugin(nDevices uint, resourceName string, allocateEnvvar string, socket string, id string) *NvidiaDevicePlugin {
+	return &NvidiaDevicePlugin{
+                devs:            getDevices(nDevices),
+		resourceName:    resourceName,
+		allocateEnvvar:  allocateEnvvar,
+		socket:          socket,
+		id:              id,
 
-		stop:   make(chan interface{}),
-		health: make(chan *pluginapi.Device),
+                stop:   make(chan interface{}),
+                health: make(chan *pluginapi.Device),
 	}
 }
 
 // dial establishes the gRPC communication with the registered device plugin.
-func dial(unixSocketPath string, timeout time.Duration) (*grpc.ClientConn, error) {
+func dialNvidia(unixSocketPath string, timeout time.Duration) (*grpc.ClientConn, error) {
 	c, err := grpc.Dial(unixSocketPath, grpc.WithInsecure(), grpc.WithBlock(),
 		grpc.WithTimeout(timeout),
 		grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
@@ -64,28 +64,34 @@ func dial(unixSocketPath string, timeout time.Duration) (*grpc.ClientConn, error
 }
 
 // Start the gRPC server of the device plugin
-func (m *SmarterDevicePlugin) Start() error {
+func (m *NvidiaDevicePlugin) Start() error {
+	glog.V(0).Info("Initializing nvidia device manager")
 	err := m.cleanup()
 	if err != nil {
 		return err
 	}
 
+	glog.V(0).Info("Opening nvidia device manager socket ", m.socket)
 	sock, err := net.Listen("unix", m.socket)
 	if err != nil {
 		return err
 	}
+	glog.V(0).Info("Socket opened nvidia device manager")
 
 	m.server = grpc.NewServer([]grpc.ServerOption{}...)
 	pluginapi.RegisterDevicePluginServer(m.server, m)
+	glog.V(0).Info("gRPC server registered")
 
 	go m.server.Serve(sock)
+	glog.V(0).Info("gRPC server running on socket")
 
 	// Wait for server to start by launching a blocking connexion
-	conn, err := dial(m.socket, 60*time.Second)
+	conn, err := dialNvidia(m.socket, 60*time.Second)
 	if err != nil {
 		return err
 	}
 	conn.Close()
+	glog.V(0).Info("gRPC Dial OK")
 
 	go m.healthcheck()
 
@@ -93,7 +99,7 @@ func (m *SmarterDevicePlugin) Start() error {
 }
 
 // Stop the gRPC server
-func (m *SmarterDevicePlugin) Stop() error {
+func (m *NvidiaDevicePlugin) Stop() error {
 	if m.server == nil {
 		return nil
 	}
@@ -106,8 +112,8 @@ func (m *SmarterDevicePlugin) Stop() error {
 }
 
 // Register the device plugin for the given resourceName with Kubelet.
-func (m *SmarterDevicePlugin) Register(kubeletEndpoint, resourceName string) error {
-	conn, err := dial(kubeletEndpoint, 5*time.Second)
+func (m *NvidiaDevicePlugin) Register(kubeletEndpoint, resourceName string) error {
+	conn, err := dialNvidia(kubeletEndpoint, 5*time.Second)
 	if err != nil {
 		return err
 	}
@@ -128,7 +134,7 @@ func (m *SmarterDevicePlugin) Register(kubeletEndpoint, resourceName string) err
 }
 
 // ListAndWatch lists devices and update that list according to the health status
-func (m *SmarterDevicePlugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListAndWatchServer) error {
+func (m *NvidiaDevicePlugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.DevicePlugin_ListAndWatchServer) error {
 	s.Send(&pluginapi.ListAndWatchResponse{Devices: m.devs})
 
 	for {
@@ -143,29 +149,27 @@ func (m *SmarterDevicePlugin) ListAndWatch(e *pluginapi.Empty, s pluginapi.Devic
 	}
 }
 
-func (m *SmarterDevicePlugin) unhealthy(dev *pluginapi.Device) {
+func (m *NvidiaDevicePlugin) unhealthy(dev *pluginapi.Device) {
 	m.health <- dev
 }
 
 // Allocate which return list of devices.
-func (m *SmarterDevicePlugin) Allocate(ctx context.Context, reqs *pluginapi.AllocateRequest) (*pluginapi.AllocateResponse, error) {
-	devs := m.devs
+func (m *NvidiaDevicePlugin) Allocate(ctx context.Context, reqs *pluginapi.AllocateRequest) (*pluginapi.AllocateResponse, error) {
 	responses := pluginapi.AllocateResponse{}
 	for _, req := range reqs.ContainerRequests {
+                //for _, id := range req.DevicesIDs {
+		//	if !m.deviceExists(id) {
+		//		return nil, fmt.Errorf("invalid allocation request for '%s': unknown device: %s", m.resourceName, id)
+		//	}
+		//
+
 		response := pluginapi.ContainerAllocateResponse{
-			Devices: []*pluginapi.DeviceSpec{
-				&pluginapi.DeviceSpec{
-					ContainerPath: m.deviceFile,
-					HostPath:      m.deviceFile,
-					Permissions:   "rw",
-				},
+			Envs: map[string]string{
+				m.allocateEnvvar: m.id,
 			},
 		}
-
-		for _, id := range req.DevicesIDs {
-			if !deviceExists(devs, id) {
-				return nil, fmt.Errorf("invalid allocation request: unknown device: %s", id)
-			}
+		if *passDeviceSpecs {
+			response.Devices = m.apiDeviceSpecs(req.DevicesIDs)
 		}
 
 		responses.ContainerResponses = append(responses.ContainerResponses, &response)
@@ -174,11 +178,11 @@ func (m *SmarterDevicePlugin) Allocate(ctx context.Context, reqs *pluginapi.Allo
 	return &responses, nil
 }
 
-func (m *SmarterDevicePlugin) PreStartContainer(context.Context, *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
+func (m *NvidiaDevicePlugin) PreStartContainer(context.Context, *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
 	return &pluginapi.PreStartContainerResponse{}, nil
 }
 
-func (m *SmarterDevicePlugin) cleanup() error {
+func (m *NvidiaDevicePlugin) cleanup() error {
 	if err := os.Remove(m.socket); err != nil && !os.IsNotExist(err) {
 		return err
 	}
@@ -186,7 +190,7 @@ func (m *SmarterDevicePlugin) cleanup() error {
 	return nil
 }
 
-func (m *SmarterDevicePlugin) healthcheck() {
+func (m *NvidiaDevicePlugin) healthcheck() {
 	disableHealthChecks := strings.ToLower(os.Getenv(envDisableHealthChecks))
 	if disableHealthChecks == "all" {
 		disableHealthChecks = allHealthChecks
@@ -211,7 +215,7 @@ func (m *SmarterDevicePlugin) healthcheck() {
 }
 
 // Serve starts the gRPC server and register the device plugin to Kubelet
-func (m *SmarterDevicePlugin) Serve() error {
+func (m *NvidiaDevicePlugin) Serve() error {
 	err := m.Start()
 	if err != nil {
 		glog.Errorf("Could not start device plugin: %s", err)
@@ -230,6 +234,43 @@ func (m *SmarterDevicePlugin) Serve() error {
 	return nil
 }
 
-func (m *SmarterDevicePlugin) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*pluginapi.DevicePluginOptions, error) {
+func (m *NvidiaDevicePlugin) GetDevicePluginOptions(context.Context, *pluginapi.Empty) (*pluginapi.DevicePluginOptions, error) {
 	return &pluginapi.DevicePluginOptions{}, nil
+}
+
+func (m *NvidiaDevicePlugin) apiDeviceSpecs(filter []string) []*pluginapi.DeviceSpec {
+	var specs []*pluginapi.DeviceSpec
+
+	paths := []string{
+		"/dev/nvidiactl",
+		"/dev/nvidia-uvm",
+		"/dev/nvidia-uvm-tools",
+		"/dev/nvidia-modeset",
+	}
+
+	for _, p := range paths {
+		if _, err := os.Stat(p); err == nil {
+			spec := &pluginapi.DeviceSpec{
+				ContainerPath: p,
+				HostPath:      p,
+				Permissions:   "rw",
+			}
+			specs = append(specs, spec)
+		}
+	}
+
+//	for _, d := range m.devs {
+//		for _, id := range filter {
+//			if d.ID == id {
+//				spec := &pluginapi.DeviceSpec{
+//					ContainerPath: d.Path,
+//					HostPath:      d.Path,
+//					Permissions:   "rw",
+//				}
+//				specs = append(specs, spec)
+//			}
+//		}
+//	}
+
+	return specs
 }

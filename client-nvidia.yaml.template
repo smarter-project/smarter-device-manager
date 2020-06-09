@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: smarter-device-management-nvidia-client
+  namespace: NAMESPACE
+spec:
+  serviceAccountName: default
+  automountServiceAccountToken: false
+  dnsPolicy: ClusterFirstWithHostNet
+  hostname: yocto-test-client
+  nodeName: NODE_TO_TEST
+  restartPolicy: Never
+  containers:
+  - name: smarter-device-management-nvidia-client
+    imagePullPolicy: IfNotPresent
+    image: alpine
+    command: ["/bin/ash"]
+    args:
+    - "-c"
+    - |
+      if [ ! -e /dev/nvhost-gpu ]
+      then
+           echo "No nvidia GPU available (/dev/nvhost-gpu)"
+           exit 1
+      fi
+      exit 0
+    resources:
+      limits:
+        cpu: 100m
+        memory: 100Mi
+        smarter-devices/nvidia-gpu0: 0
+      requests:
+        cpu: 100m
+        memory: 100Mi
+        smarter-devices/nvidia-gpu0: 0
+  terminationGracePeriodSeconds: 10

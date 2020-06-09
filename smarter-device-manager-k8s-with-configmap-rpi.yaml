@@ -36,7 +36,7 @@ spec:
       - name: k8sedgeregcred
       containers:
       - name: smarter-device-manager
-        image: registry.gitlab.com/arm-research/smarter/smarter-device-manager/smarter-device-manager:20191204204613
+        image: registry.gitlab.com/arm-research/smarter/smarter-device-manager/smarter-device-manager:IMAGE_ID
         imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false
@@ -54,6 +54,8 @@ spec:
             mountPath: /var/lib/kubelet/device-plugins
           - name: dev-dir
             mountPath: /dev
+          - name: sys-dir
+            mountPath: /sys
           - name: config
             mountPath: /root/config
       volumes:
@@ -63,6 +65,9 @@ spec:
         - name: dev-dir
           hostPath:
             path: /dev
+        - name: sys-dir
+          hostPath:
+            path: /sys
         - name: config
           configMap:
              name: smarter-device-manager-rpi

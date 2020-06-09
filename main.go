@@ -202,7 +202,7 @@ L:
                                                 break
                                         }
                                 case nvidiaSysType :
-                                        devicesInUse.devicePluginNvidia = NewNvidiaDevicePlugin(devicesInUse.deviceName,"NVIDIA_VISIBLE_DEVICES", devicesInUse.socketName, devicesInUse.deviceId)
+                                        devicesInUse.devicePluginNvidia = NewNvidiaDevicePlugin(devicesInUse.numDevices, devicesInUse.deviceName,"NVIDIA_VISIBLE_DEVICES", devicesInUse.socketName, devicesInUse.deviceId)
                                         if err = devicesInUse.devicePluginNvidia.Serve(); err != nil {
                                                 glog.V(0).Info("Could not contact Kubelet, retrying. Did you enable the device plugin feature gate?")
                                                 break

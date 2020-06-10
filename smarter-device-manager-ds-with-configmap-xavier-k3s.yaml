@@ -32,8 +32,6 @@ spec:
       hostname: smarter-device-management
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
-      imagePullSecrets:
-      - name: k8sedgeregcred
       containers:
       - name: smarter-device-manager
         image: registry.gitlab.com/arm-research/smarter/smarter-device-manager/smarter-device-manager:IMAGE_ID
@@ -55,13 +53,13 @@ spec:
           - name: dev-dir
             mountPath: /dev
           - name: sys-dir
-            mountPath: /sys
+             mountPath: /sys
           - name: config
             mountPath: /root/config
       volumes:
         - name: device-plugin
           hostPath:
-            path: /var/lib/kubelet/device-plugins
+            path: /var/lib/rancher/k3s/agent/kubelet/device-plugins
         - name: dev-dir
           hostPath:
             path: /dev
@@ -71,4 +69,7 @@ spec:
         - name: config
           configMap:
              name: smarter-device-manager-rpi
+        - name: config
+          hostPath:
+            path: /var/lib/rancher/k3s/agent/kubelet/device-plugins
       terminationGracePeriodSeconds: 30

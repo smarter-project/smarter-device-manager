@@ -32,8 +32,6 @@ spec:
       hostname: smarter-device-management
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
-      imagePullSecrets:
-      - name: k8sedgeregcred
       containers:
       - name: smarter-device-manager
         image: registry.gitlab.com/arm-research/smarter/smarter-device-manager/smarter-device-manager:IMAGE_ID
@@ -70,5 +68,5 @@ spec:
             path: /sys
         - name: config
           configMap:
-             name: smarter-device-manager-xavier
+             name: smarter-device-manager-rpi
       terminationGracePeriodSeconds: 30

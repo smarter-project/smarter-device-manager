@@ -147,3 +147,6 @@ The following command should show the node resources in a similar form as shown 
 kubectl describe node pike5
 ```
 
+## k3s 
+
+K3s < 1.18 stores the plugin interface in a different directory than k8s and so it needs a different yaml file to enable smarter-device-manager to communicate correctly with k3s agent. So use the smart-device-manager-k3s yaml files on this reposistor for k3s < 1.18.

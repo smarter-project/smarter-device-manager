@@ -22,3 +22,11 @@ data:
           nummaxdevices: 20
         - devicematch: ^vcsm.*$
           nummaxdevices: 20
+        - devicematch: ^ttyUSB[0-9]*$
+          nummaxdevices: 1
+        - devicematch: ^ttyACM[0-9]*$
+          nummaxdevices: 1
+        - devicematch: ^ttyTHS[0-9]*$
+          nummaxdevices: 1
+        - devicematch: ^ttyS[0-9]*$
+          nummaxdevices: 1

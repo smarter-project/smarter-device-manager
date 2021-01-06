@@ -5,6 +5,12 @@
 function printHelp() {
                 echo $(basename $0)" options:";
                 echo "    -A <Architectures to use> # Compiling to ${ARCHS} now, examples: linux/amd64,linux/arm/v7,linux/arm/v6,linux/arm64"
+                if [ ${FLAG_NOCACHE} -gt 0 ]
+                then
+                        echo "    -C # Do not use cache"
+                else 
+                        echo "    -C # Use cache" 
+                fi
                 if [ ${FLAG_UPLOADIMAGES} -gt 0 ]
                 then
                         echo "    -U # Do not upload images - the default is upload the images to the registry"
@@ -43,8 +49,9 @@ FLAG_UPLOADMANIFEST=1
 ADDITIONAL_TAG=""
 ADDITIONAL_IMAGE_NAME=""
 PUSH_OPTION=""
+FLAG_NOCACHE=0
 
-while getopts hA:B:MST:U name
+while getopts hA:B:MST:UC name
 do
         case $name in
         h)
@@ -52,6 +59,10 @@ do
                 exit 0;;
         A)
                 ARCHS="$OPTARG";;
+        C)
+                [ ${FLAG_NOCACHE} -gt 0 ] && FLAG_NOCACHE=0;
+                [ ${FLAG_NOCACHE} -eq 0 ] && FLAG_NOCACHE=1;
+                ;;
         U)
                 [ ${FLAG_UPLOADIMAGES} -gt 0 ] && FLAG_UPLOADIMAGES=0;
                 [ ${FLAG_UPLOADIMAGES} -eq 0 ] && FLAG_UPLOADIMAGES=1;
@@ -93,6 +104,13 @@ EOF
         fi
 fi
 
+if [ $FLAG_NOCACHE -gt 0 ]
+then
+        CACHE_OPTION="--no-cache"
+else
+        CACHE_OPTION="" 
+fi
+        
 if [ $FLAG_UPLOADIMAGES -gt 0 ]
 then
         PUSH_OPTION="--push"
@@ -100,6 +118,6 @@ else
         PUSH_OPTION="--load"
 fi
         
-docker buildx build  -t "${REPOSITORY_NAME}${IMAGE_NAME}${ADDITIONAL_IMAGE_NAME}:${BUILD_TAG}" --platform=${ARCHS} ${PUSH_OPTION} .
+docker buildx build ${CACHE_OPTION}  -t "${REPOSITORY_NAME}${IMAGE_NAME}${ADDITIONAL_IMAGE_NAME}:${BUILD_TAG}" --platform=${ARCHS} ${PUSH_OPTION} .
 
 exit 0

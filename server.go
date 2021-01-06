@@ -94,6 +94,7 @@ func (m *SmarterDevicePlugin) Start() error {
 
 // Stop the gRPC server
 func (m *SmarterDevicePlugin) Stop() error {
+	glog.V(0).Infof("Stopping server with socket ",m.socket)
 	if m.server == nil {
 		return nil
 	}
@@ -101,6 +102,7 @@ func (m *SmarterDevicePlugin) Stop() error {
 	m.server.Stop()
 	m.server = nil
 	close(m.stop)
+	glog.V(0).Info("Server stopped with socket ",m.socket)
 
 	return m.cleanup()
 }
@@ -179,6 +181,7 @@ func (m *SmarterDevicePlugin) PreStartContainer(context.Context, *pluginapi.PreS
 }
 
 func (m *SmarterDevicePlugin) cleanup() error {
+	glog.V(0).Info("Removing file ",m.socket)
 	if err := os.Remove(m.socket); err != nil && !os.IsNotExist(err) {
 		return err
 	}

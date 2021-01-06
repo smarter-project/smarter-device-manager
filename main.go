@@ -193,17 +193,17 @@ L:
 			}
 
 			var err error
-			for _, devicesInUse := range listDevicesAvailable {
-                                switch devicesInUse.deviceType {
+			for id, _ := range listDevicesAvailable {
+                                switch listDevicesAvailable[id].deviceType {
                                 case deviceFileType :
-                                        devicesInUse.devicePluginSmarter = NewSmarterDevicePlugin(devicesInUse.numDevices, devicesInUse.deviceFile, devicesInUse.deviceName, devicesInUse.socketName)
-                                        if err = devicesInUse.devicePluginSmarter.Serve(); err != nil {
+                                        listDevicesAvailable[id].devicePluginSmarter = NewSmarterDevicePlugin(listDevicesAvailable[id].numDevices, listDevicesAvailable[id].deviceFile, listDevicesAvailable[id].deviceName, listDevicesAvailable[id].socketName)
+                                        if err = listDevicesAvailable[id].devicePluginSmarter.Serve(); err != nil {
                                                 glog.V(0).Info("Could not contact Kubelet, retrying. Did you enable the device plugin feature gate?")
                                                 break
                                         }
                                 case nvidiaSysType :
-                                        devicesInUse.devicePluginNvidia = NewNvidiaDevicePlugin(devicesInUse.numDevices, devicesInUse.deviceName,"NVIDIA_VISIBLE_DEVICES", devicesInUse.socketName, devicesInUse.deviceId)
-                                        if err = devicesInUse.devicePluginNvidia.Serve(); err != nil {
+                                        listDevicesAvailable[id].devicePluginNvidia = NewNvidiaDevicePlugin(listDevicesAvailable[id].numDevices, listDevicesAvailable[id].deviceName,"NVIDIA_VISIBLE_DEVICES", listDevicesAvailable[id].socketName, listDevicesAvailable[id].deviceId)
+                                        if err = listDevicesAvailable[id].devicePluginNvidia.Serve(); err != nil {
                                                 glog.V(0).Info("Could not contact Kubelet, retrying. Did you enable the device plugin feature gate?")
                                                 break
                                         }
@@ -234,13 +234,18 @@ L:
 			default:
 				glog.V(0).Infof("Received signal \"%v\", shutting down.", s)
 				for _, devicesInUse := range listDevicesAvailable {
+                                        glog.V(0).Info("Stopping device ", devicesInUse.deviceName)
                                         switch devicesInUse.deviceType {
                                         case deviceFileType :
+				                glog.V(0).Info("Smarter device type")
                                                 if devicesInUse.devicePluginSmarter != nil {
+				                        glog.V(0).Info("Stopping device")
                                                         devicesInUse.devicePluginSmarter.Stop()
                                                 }
                                         case nvidiaSysType :
+				                glog.V(0).Info("Nvidia device type")
                                                 if devicesInUse.devicePluginNvidia != nil {
+				                        glog.V(0).Info("Stopping device")
                                                         devicesInUse.devicePluginNvidia.Stop()
                                                 }
                                         }

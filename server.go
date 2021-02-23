@@ -13,7 +13,7 @@ import (
 	"github.com/golang/glog"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	pluginapi "k8s.io/kubernetes/pkg/kubelet/apis/deviceplugin/v1beta1"
+        pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
 
 const (
@@ -178,6 +178,10 @@ func (m *SmarterDevicePlugin) Allocate(ctx context.Context, reqs *pluginapi.Allo
 
 func (m *SmarterDevicePlugin) PreStartContainer(context.Context, *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
 	return &pluginapi.PreStartContainerResponse{}, nil
+}
+
+func (m *SmarterDevicePlugin) GetPreferredAllocation(context.Context, *pluginapi.PreferredAllocationRequest) (*pluginapi.PreferredAllocationResponse, error) {
+	return &pluginapi.PreferredAllocationResponse{}, nil
 }
 
 func (m *SmarterDevicePlugin) cleanup() error {

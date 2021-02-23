@@ -13,7 +13,7 @@ import (
 	"github.com/golang/glog"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	pluginapi "k8s.io/kubernetes/pkg/kubelet/apis/deviceplugin/v1beta1"
+        pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
 
 var passDeviceSpecs = flag.Bool("pass-device-specs", false, "pass the list of DeviceSpecs to the kubelet on Allocate()")
@@ -180,6 +180,10 @@ func (m *NvidiaDevicePlugin) Allocate(ctx context.Context, reqs *pluginapi.Alloc
 
 func (m *NvidiaDevicePlugin) PreStartContainer(context.Context, *pluginapi.PreStartContainerRequest) (*pluginapi.PreStartContainerResponse, error) {
 	return &pluginapi.PreStartContainerResponse{}, nil
+}
+
+func (m *NvidiaDevicePlugin) GetPreferredAllocation(context.Context, *pluginapi.PreferredAllocationRequest) (*pluginapi.PreferredAllocationResponse, error) {
+	return &pluginapi.PreferredAllocationResponse{}, nil
 }
 
 func (m *NvidiaDevicePlugin) cleanup() error {

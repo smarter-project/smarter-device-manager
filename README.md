@@ -17,6 +17,10 @@ The smarter-device-manager starts by reading a YAML configuration file. This con
   nummaxdevices: 10
 ```
 
+Devices in subdirectories have the slash replaced with underscore in the
+resource name, due to kubernetes naming restrictions: e.g. `/dev/net/tun`
+becomes `smarter-devices/net_tun`.
+
 The default config file provided will enable most of the devices available on a Raspberry Pi (vers 1-4) or equivalent boards. I2C, SPI, video devices, sound and others would be enabled. The config file can be replaced using a configmap to enable or disable access to different devices, like accelerators, GPUs, etc.
 
 The node will show the devices it recognizes as resources in the node object in Kubernetes. The example below shows a raspberry PI.

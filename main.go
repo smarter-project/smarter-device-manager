@@ -58,6 +58,15 @@ func init() {
 func readDevDirectory(dirToList string) (files []string, err error) {
         var foundFiles []string
 
+        fType, err := os.Stat(dirToList)
+        if err != nil {
+                return nil, err
+        }
+
+        if !fType.IsDir()  {
+                return nil, nil
+        }
+
         f, err := os.Open(dirToList)
         if err != nil {
                 return nil, err

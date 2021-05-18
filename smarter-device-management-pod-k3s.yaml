@@ -15,7 +15,7 @@ spec:
   nodeName: <replace with node to run>
   containers:
   - name: smarter-device-manager
-    image: registry.gitlab.com/arm-research/smarter/smarter-device-manager:v1.20.5
+    image: registry.gitlab.com/arm-research/smarter/smarter-device-manager:v1.20.6
     imagePullPolicy: IfNotPresent
     securityContext:
       allowPrivilegeEscalation: false

@@ -55,7 +55,7 @@ func init() {
 	flag.Parse()
 }
 
-func readDevDirectory(dirToList string) (files []string, err error) {
+func readDevDirectory(dirToList string, allowedRecursions uint8) (files []string, err error) {
         var foundFiles []string
 
         fType, err := os.Stat(dirToList)
@@ -79,10 +79,12 @@ func readDevDirectory(dirToList string) (files []string, err error) {
         f.Close()
         for _, subDir := range files {
                 foundFiles = append(foundFiles, subDir)
-                filesDir, err := readDevDirectory(dirToList+"/"+subDir)
-                if err == nil {
-                        for _, fileName := range filesDir {
-                                foundFiles = append(foundFiles, subDir+"/"+fileName)
+                if allowedRecursions > 0 {
+                        filesDir, err := readDevDirectory(dirToList+"/"+subDir,allowedRecursions-1)
+                        if err == nil {
+                                for _, fileName := range filesDir {
+                                        foundFiles = append(foundFiles, subDir+"/"+fileName)
+                                }
                         }
                 }
         }
@@ -127,13 +129,13 @@ func main() {
         }
 
 	glog.V(0).Info("Reading existing devices on /dev")
-	ExistingDevices, err := readDevDirectory("/dev")
+	ExistingDevices, err := readDevDirectory("/dev",10)
 	if err != nil {
 		glog.Errorf(err.Error())
 		os.Exit(1)
 	}
 
-	ExistingDevicesSys, err := readDevDirectory("/sys/devices")
+	ExistingDevicesSys, err := readDevDirectory("/sys/devices",0)
 	if err != nil {
 		glog.Errorf(err.Error())
 		os.Exit(1)

@@ -56,17 +56,33 @@ func init() {
 }
 
 func readDevDirectory(dirToList string) (files []string, err error) {
-	f, err := os.Open(dirToList)
-	if err != nil {
-		return nil, err
-	}
-	files, err = f.Readdirnames(-1)
-	f.Close()
-	if err != nil {
-		return nil, err
-	}
+        var foundFiles []string
 
-	return files, nil
+        f, err := os.Open(dirToList)
+        if err != nil {
+                return nil, err
+        }
+        files, err = f.Readdirnames(-1)
+        if err != nil {
+                f.Close()
+                return nil, err
+        }
+        f.Close()
+        for _, subDir := range files {
+                foundFiles = append(foundFiles, subDir)
+                filesDir, err := readDevDirectory(dirToList+"/"+subDir)
+                if err == nil {
+                        for _, fileName := range filesDir {
+                                foundFiles = append(foundFiles, subDir+"/"+fileName)
+                        }
+                }
+        }
+
+        return foundFiles, nil
+}
+
+func sanitizeName(path string) string {
+        return strings.Replace(path, "/", "_" ,-1)
 }
 
 func findDevicesPattern(listDevices []string, pattern string) ([]string,error) {
@@ -151,9 +167,10 @@ func main() {
                         if len(foundDevices) > 0 {
                                 for _, deviceToCreate := range foundDevices {
                                         var newDevice DeviceInstance
+                                        deviceSafeName := sanitizeName(deviceToCreate)
                                         newDevice.deviceType = deviceFileType
-                                        newDevice.deviceName = "smarter-devices/" + deviceToCreate
-                                        newDevice.socketName = pluginapi.DevicePluginPath + "smarter-" + deviceToCreate + ".sock"
+                                        newDevice.deviceName = "smarter-devices/" + deviceSafeName
+                                        newDevice.socketName = pluginapi.DevicePluginPath + "smarter-" + deviceSafeName + ".sock"
                                         newDevice.deviceFile = "/dev/" + deviceToCreate
                                         newDevice.numDevices = deviceToTest.NumMaxDevices
                                         listDevicesAvailable = append(listDevicesAvailable, newDevice)

@@ -93,7 +93,22 @@ func readDevDirectory(dirToList string, allowedRecursions uint8) (files []string
 }
 
 func sanitizeName(path string) string {
-        return strings.Replace(path, "/!@#$%^&*()[]{}'`~.", "___________________",-1)
+        sanitizeChar := func(r rune) rune {
+		switch {
+		case r >= 'A' && r <= 'Z':
+			return r
+		case r >= 'a' && r <= 'z':
+			return r
+		case r >= '0' && r <= '9':
+			return r
+		case r == '_':
+			return r
+		case r == '-':
+			return r
+		}
+		return '_'
+	}
+        return strings.Map(sanitizeChar, path)
 }
 
 func findDevicesPattern(listDevices []string, pattern string) ([]string,error) {

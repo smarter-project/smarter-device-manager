@@ -34,7 +34,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       containers:
       - name: smarter-device-manager
-        image: registry.gitlab.com/arm-research/smarter/smarter-device-manager:v1.20.10
+        image: registry.gitlab.com/arm-research/smarter/smarter-device-manager:v1.20.11
         imagePullPolicy: IfNotPresent
         securityContext:
           allowPrivilegeEscalation: false

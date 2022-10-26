@@ -1,0 +1,30 @@
+apiVersion: v2
+name: smarter-device-manager
+description: smarter-device-manager chart for SMARTER edge devices
+home: https://gitlab.com/smarter-project/smarter-device-manager/helm
+version: 0.0.2
+appVersion: v1.20.11
+kubeVersion: ">=1.16.0-0"
+keywords:
+  - kubernetes
+  - device
+  - hardware
+sources:
+  - https://gitlab.com/smarter-project/smarter-device-manager
+#dependencies:
+#  - name: smarter-common
+#    repository: https://gitlab.com/smarter-project/documentation
+#    version: 0.0.1
+
+annotations:
+  artifacthub.io/changes: |
+    - Fix template
+    - Add annotations
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/maintainers: |
+    - name: Alexandre Ferreira
+      email: alexandref75@gmail.com
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/signKey: |
+    fingerprint: 82AD709FEC4ECA4C84B093889BDC9DE410CFC23B
+    url: https://keybase.io/alexandref75/pgp_keys.asc

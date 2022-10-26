@@ -36,7 +36,7 @@ function printHelp() {
 }
 
 BUILD_TAG=$(date -u "+%Y%m%d%H%M%S")
-REPOSITORY_NAME="registry.gitlab.com/arm-research/smarter/smarter-device-manager/"
+REPOSITORY_NAME="registry.gitlab.com/smarter-project/smarter-device-manager/"
 IMAGE_NAME="smarter-device-manager"
 DIRECTORY_TO_RUN=.
 

@@ -154,3 +154,10 @@ kubectl describe node pike5
 ## k3s 
 
 K3s < 1.18 stores the plugin interface in a different directory than k8s and so it needs a different yaml file to enable smarter-device-manager to communicate correctly with k3s agent. So use the smart-device-manager-k3s yaml files on this reposistor for k3s < 1.18.
+
+## Using helm
+
+A helm chart that install smarter-device-manager configurad for SMARTER is available at chart directory
+```
+helm install smarter-device-manager chart
+```

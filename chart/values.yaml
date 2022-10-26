@@ -1,0 +1,12 @@
+#
+
+application:
+  namespace: smarter
+  appName: smarter-device-manager
+
+image:
+  repository: registry.gitlab.com/arm-research/smarter/smarter-device-manager
+  #repository: registry.gitlab.com/smarter-project/smarter-device-manager
+  # @default -- chart.appVersion
+  tag: ""
+  pullPolicy: IfNotPresent

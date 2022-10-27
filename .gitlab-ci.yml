@@ -3,4 +3,4 @@ include:
     file: '/.gitlab-ci.yml'
 
 variables:
-  CI_BUILDX_ARCHS: "linux/amd64,linux/arm64,linux/arm"
+  CI_BUILDX_ARCHS: "linux/amd64,linux/arm64"

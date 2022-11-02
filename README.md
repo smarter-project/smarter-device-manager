@@ -157,7 +157,7 @@ K3s < 1.18 stores the plugin interface in a different directory than k8s and so 
 
 ## Using helm
 
-A helm chart that install smarter-device-manager configurad for SMARTER is available at chart directory
+A helm chart that install smarter-device-manager configured for SMARTER is available at chart directory
 ```
 helm install smarter-device-manager chart
 ```

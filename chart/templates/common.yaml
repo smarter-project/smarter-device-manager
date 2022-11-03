@@ -40,7 +40,7 @@ spec:
             drop: ["ALL"]
         resources:
           limits:
-            cpu: 100m
+            cpu: 200m
             memory: 15Mi
           requests:
             cpu: 10m
@@ -52,6 +52,10 @@ spec:
             mountPath: /dev
           - name: sys-dir
             mountPath: /sys
+          {{- if .Values.config }}
+          - name: config
+            mountPath: /root/config
+          {{- end }}
       volumes:
         - name: device-plugin
           hostPath:
@@ -62,5 +66,9 @@ spec:
         - name: sys-dir
           hostPath:
             path: /sys
+        {{- if .Values.config }}
+        - name: config
+          configMap:
+            name: {{ .Values.application.appName }}
+        {{- end }}
       terminationGracePeriodSeconds: 30
-

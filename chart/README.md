@@ -36,6 +36,8 @@ The smarter-device-manager starts by reading a YAML configuration file. This con
   nummaxdevices: 10
 ```
 
+If the config value is provided a configMap is generated and smarter-device-manager will use it. The values.yaml file contains two examples, the first is replicated the config that exists on the container and the second enables nitro-enclaves (AWS nitro).
+
 Devices in subdirectories have the slash replaced with underscore in the
 resource name, due to kubernetes naming restrictions: e.g. `/dev/net/tun`
 becomes `smarter-devices/net_tun`.

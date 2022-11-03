@@ -69,7 +69,4 @@ spec:
         - name: config
           configMap:
              name: smarter-device-manager-rpi
-        - name: config
-          hostPath:
-            path: /var/lib/rancher/k3s/agent/kubelet/device-plugins
       terminationGracePeriodSeconds: 30

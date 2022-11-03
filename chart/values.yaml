@@ -6,7 +6,53 @@ application:
 
 image:
   repository: registry.gitlab.com/smarter-project/smarter-device-manager
-  #repository: registry.gitlab.com/smarter-project/smarter-device-manager
   # @default -- chart.appVersion
   tag: ""
   pullPolicy: IfNotPresent
+
+# If a specific configurations is used it can be provided by uncommenting this lines
+# config:
+#   - devicematch: ^snd$
+#     nummaxdevices: 20
+#   - devicematch: ^gpiomem$
+#     nummaxdevices: 40
+#   - devicematch: ^gpiochip[0-9]*$
+#     nummaxdevices: 20
+#   - devicematch: ^hci[0-9]*$
+#     nummaxdevices: 1
+#   - devicematch: ^i2c-[0-9]*$
+#     nummaxdevices: 1
+#   - devicematch: ^rtc0$
+#     nummaxdevices: 20
+#   - devicematch: ^video[0-9]*$
+#     nummaxdevices: 20
+#   - devicematch: ^vchiq$
+#     nummaxdevices: 20
+#   - devicematch: ^vcsm.*$
+#     nummaxdevices: 20
+#   - devicematch: ^ttyUSB[0-9]*$
+#     nummaxdevices: 1
+#   - devicematch: ^ttyACM[0-9]*$
+#     nummaxdevices: 1
+#   - devicematch: ^ttyTHS[0-9]*$
+#     nummaxdevices: 1
+#   - devicematch: ^ttyS[0-9]*$
+#     nummaxdevices: 1
+#
+
+# This example of configmap allows nitro enclaves to be allocated in a pod
+# config:
+#   - devicematch: ^nitro_enclaves$
+#     nummaxdevices: 1
+#   - devicematch: ^vsock$
+#     nummaxdevices: 1
+#   - devicematch: ^rtc0$
+#     nummaxdevices: 20
+#   - devicematch: ^ttyUSB[0-9]*$
+#     nummaxdevices: 1
+#   - devicematch: ^ttyACM[0-9]*$
+#     nummaxdevices: 1
+#   - devicematch: ^ttyTHS[0-9]*$
+#     nummaxdevices: 1
+#   - devicematch: ^ttyS[0-9]*$
+#     nummaxdevices: 1

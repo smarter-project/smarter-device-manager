@@ -20,6 +20,10 @@ Kubernetes primarily manages CPU, memory, storage, and network, while leaving ot
 In IoT environments, applications can have direct access to sensors and actuators, either directly by interfacing with a device driver on the kernel (e.g. digital I/O pins, temperature sensors, analog inputs, microphones, audio output, video cameras) or indirectly through hardware interfaces (like serial ports, I2C, SPI, bluetooth, LoRa, USB and others).
 Controlled access to these devices is essential to enable a container-based IoT solution. Smarter-device-manager allows containers to have direct access to host devices in a secure way.
 
+## Values
+
+The configuration.nodeSelector value allows the nodeSelector to be changed in a higher level chart simplyfyng deploying multiple services at the same time; CNI, DNS and device-manager with a single label for example.
+
 ## Pre-requisites
 
 - k8s > 1.18 (before this the plugin interface used a different directory which requires a different configuration)

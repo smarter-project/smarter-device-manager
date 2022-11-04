@@ -20,7 +20,7 @@ spec:
         node.kubernetes.io/bootstrap-checkpoint: "true"
     spec: 
       nodeSelector:
-        smarter-device-manager : enabled
+        {{- toYaml .Values.configuration.nodeSelector | nindent 8 }}
       tolerations:
       - key: "smarter.type"
         operator: "Equal"

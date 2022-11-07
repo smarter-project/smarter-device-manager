@@ -1,6 +1,0 @@
-include:
-  - project: 'ericvh/gitlab-ci-arm-template'
-    file: '/.gitlab-ci.yml'
-
-variables:
-  CI_BUILDX_ARCHS: "linux/amd64,linux/arm64"

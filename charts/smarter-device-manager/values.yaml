@@ -4,7 +4,7 @@ application:
   appName: smarter-device-manager
 
 image:
-  repository: registry.gitlab.com/smarter-project/smarter-device-manager
+  repository: ghcr.io/smarter-project/smarter-device-manager
   # @default -- chart.appVersion
   tag: ""
   pullPolicy: IfNotPresent

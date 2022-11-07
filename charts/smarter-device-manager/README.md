@@ -6,9 +6,10 @@ For more information check out https://getsmarter.io
 
 ## TL;DR
 
+Assumes that this repository was cloned.
+
 ```console
-helm repo add smarter https://smarter-project.gitlab.io/documentation/charts
-helm install my-smarter-device-manager smarter-device-manager --version 0.0.2
+helm install --nsmespace=smarter --create-namespace my-smarter-device-manager charts/smarter-device-manager
 ```
 
 ## Overview

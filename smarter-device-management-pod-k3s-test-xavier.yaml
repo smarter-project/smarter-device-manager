@@ -15,7 +15,7 @@ spec:
   nodeName: smarter-jetson-xavier-4bcc2584
   containers:
   - name: smarter-device-manager
-    image: registry.gitlab.com/smarter-project/smarter-device-manager:v1.20.11
+    image: ghcr.io/smarter-project/smarter-device-manager:v1.20.11
     imagePullPolicy: IfNotPresent
     securityContext:
       allowPrivilegeEscalation: false

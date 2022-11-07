@@ -2,7 +2,7 @@ apiVersion: v2
 name: smarter-device-manager
 description: smarter-device-manager chart for SMARTER edge devices
 home: https://gitlab.com/smarter-project/smarter-device-manager/helm
-version: 0.0.3
+version: 0.0.4
 appVersion: v1.20.11
 kubeVersion: ">=1.16.0-0"
 keywords:

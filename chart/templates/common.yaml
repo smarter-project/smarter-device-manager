@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ .Values.application.appName }}
-  namespace: {{ .Values.application.namespace }}
   labels:
     name: {{ .Values.application.appName }}
     role: agent
@@ -20,7 +19,11 @@ spec:
         node.kubernetes.io/bootstrap-checkpoint: "true"
     spec: 
       nodeSelector:
-        {{- toYaml .Values.configuration.nodeSelector | nindent 8 }}
+        {{- if .Values.nodeSelector }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+        {{- else }}
+        smarter.device-manager: enabled
+        {{- end }}
       tolerations:
       - key: "smarter.type"
         operator: "Equal"

@@ -9,10 +9,6 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
-configuration:
-  nodeSelector:
-    smarter.device-manager: enabled
-
 # If a specific configurations is used it can be provided by uncommenting this lines
 # config:
 #   - devicematch: ^snd$

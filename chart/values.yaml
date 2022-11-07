@@ -1,7 +1,6 @@
 #
 
 application:
-  namespace: smarter
   appName: smarter-device-manager
 
 image:

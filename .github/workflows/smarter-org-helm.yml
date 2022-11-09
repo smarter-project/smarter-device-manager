@@ -9,3 +9,6 @@ on:
 jobs:
   release:
     uses: smarter-project/reusable-workflows/.github/workflows/smarter-org-helm.yml@main
+    secrets:
+      GPG_KEYRING_BASE64: ${{ secrets.GPG_KEYRING_BASE64 }}
+      GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}

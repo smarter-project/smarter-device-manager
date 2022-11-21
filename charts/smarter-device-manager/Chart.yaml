@@ -2,8 +2,8 @@ apiVersion: v2
 name: smarter-device-manager
 description: smarter-device-manager chart for SMARTER edge devices
 home: https://getsmarter.io
-version: 0.0.8
-appVersion: v1.20.11
+version: 0.0.9
+appVersion: v1.20.12
 kubeVersion: ">=1.16.0-0"
 keywords:
   - kubernetes

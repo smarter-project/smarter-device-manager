@@ -15,7 +15,7 @@ spec:
   nodeName: <replace with node to run>
   containers:
   - name: smarter-device-manager
-    image: ghcr.io/smarter-project/smarter-device-manager:v1.20.11
+    image: ghcr.io/smarter-project/smarter-device-manager:v1.20.12
     imagePullPolicy: IfNotPresent
     securityContext:
       allowPrivilegeEscalation: false

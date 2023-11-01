@@ -137,7 +137,7 @@ More than one smarter-device-manager can be used in a single node if required if
 
 ## Enabling Access
 
-A few examples of yaml files are provided that enable the smarter-device-manager to be deployed in a node. The file smarter-device-management-pod-<>.yaml deploys a single pod on a node; this setup is useful for testing. The file smarter-device-manager-<>.yaml provides a deamonSet configuration that enables pods to be deployed in any node that contains the "smarter-device-manager=enabled" label. The following command inserts the daemonSet in Kubernetes. k3s and k8s put the unix sockets for the device plugin in different directories on the node so the \*-k8s.yaml files should be used on Kubernetes and the \*-k3s.yaml should be used on k3s.
+A few examples of yaml files are provided that enable the smarter-device-manager to be deployed in a node. The file smarter-device-management-pod-<>.yaml deploys a single pod on a node; this setup is useful for testing. The file smarter-device-manager-<>.yaml provides a deamonSet configuration that enables pods to be deployed in any node that contains the "smarter-device-manager=enabled" label. The following command inserts the daemonSet in Kubernetes. Use the k8s for k8s/k3s/k0s unless using k3s version lower than 1.18. K3s smaller then 1.18 put the unix sockets for the device plugin in different directories on the node so the \*-k3s.yaml files should be used on k3s for those versions.
 
 ```
 kubectl apply -f smarter-device-manager.yaml

@@ -1,5 +1,7 @@
 # Enables k8s containers to access devices (linux device drivers) available on nodes
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/smarter-device-manager)](https://artifacthub.io/packages/search?repo=smarter-device-manager)
+
 ## Motivation
 
 In the IoT world, interaction with the external environment is the reason of existence.

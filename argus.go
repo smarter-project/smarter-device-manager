@@ -3,21 +3,15 @@
 package main
 
 import (
-	"github.com/golang/glog"
         pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
+	"strconv"
 )
-
-func check(err error) {
-	if err != nil {
-		glog.Errorf(err.Error())
-	}
-}
 
 func getDevices(n uint) []*pluginapi.Device {
 	var devs []*pluginapi.Device
-	for i := uint(0); i < n; i++ {
+	for i := 0; i < n; i++ {
 		devs = append(devs, &pluginapi.Device{
-			ID:     string(i),
+			ID:     strconv.Itoa(i),
 			Health: pluginapi.Healthy,
 		})
 	}

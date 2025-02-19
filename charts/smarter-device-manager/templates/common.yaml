@@ -22,7 +22,7 @@ spec:
         {{- if .Values.nodeSelector }}
         {{- toYaml .Values.nodeSelector | nindent 8 }}
         {{- else }}
-        smarter.device-manager: enabled
+        smarter-device-manager: enabled
         {{- end }}
       tolerations:
       - key: "smarter.type"

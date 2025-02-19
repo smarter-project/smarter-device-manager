@@ -65,14 +65,10 @@ func dial(unixSocketPath string, timeout time.Duration) (*grpc.ClientConn, error
 
 // Start the gRPC server of the device plugin
 func (m *SmarterDevicePlugin) Start() error {
-	err := m.cleanup()
-	if err != nil {
-		return err
-	}
-
 	sock, err := net.Listen("unix", m.socket)
 	if err != nil {
-		return err
+		cleanupErr :=  m.cleanup()
+		return fmt.Errorf("unable to bind to socket: %v, cleanup err is %v", err, cleanupErr)
 	}
 
 	m.server = grpc.NewServer([]grpc.ServerOption{}...)

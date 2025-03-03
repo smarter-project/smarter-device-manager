@@ -15,6 +15,36 @@ entries:
         url: https://smarter-project.github.io/documentation/pgp_keys.asc
     apiVersion: v2
     appVersion: v1.20.12
+    created: "2025-03-03T21:50:56.542080778Z"
+    description: smarter-device-manager chart for SMARTER edge devices
+    digest: 966af1d14e97abb5c691cf5297fa0bb9fc086737b21d9af2cb87fd4f01cd9fa1
+    home: https://getsmarter.io
+    icon: https://github.com/smarter-project/documentation/raw/main/ARM1636_Project_Logo_ST2_RGB_V1.png
+    keywords:
+    - kubernetes
+    - device
+    - hardware
+    kubeVersion: '>=1.16.0-0'
+    name: smarter-device-manager
+    sources:
+    - https://github.com/smarter-project/smarter-device-manager
+    urls:
+    - https://github.com/smarter-project/smarter-device-manager/releases/download/smarter-device-manager-0.0.10/smarter-device-manager-0.0.10.tgz
+    version: 0.0.10
+  - annotations:
+      artifacthub.io/changes: |
+        - Fix template
+        - Add annotations
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/maintainers: |
+        - name: Alexandre Ferreira
+          email: alexandref75@gmail.com
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/signKey: |
+        fingerprint: 71EDA4E3D652DC73EB09E3A5387D298C169CF24E
+        url: https://smarter-project.github.io/documentation/pgp_keys.asc
+    apiVersion: v2
+    appVersion: v1.20.12
     created: "2022-11-22T14:42:55.980442932Z"
     description: smarter-device-manager chart for SMARTER edge devices
     digest: 9550de7af8b37ca7645c6b0db99a1e71ec3e2ee28f0e128b0daa09e1d8f34b45
@@ -178,4 +208,4 @@ entries:
     urls:
     - https://github.com/smarter-project/smarter-device-manager/releases/download/smarter-device-manager-0.0.4/smarter-device-manager-0.0.4.tgz
     version: 0.0.4
-generated: "2022-11-22T14:42:55.980469032Z"
+generated: "2025-03-03T21:50:56.54209816Z"

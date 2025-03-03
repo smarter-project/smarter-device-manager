@@ -44,10 +44,10 @@ spec:
         resources:
           limits:
             cpu: 200m
-            memory: 15Mi
+            memory: 30Mi
           requests:
             cpu: 10m
-            memory: 15Mi
+            memory: 30Mi
         volumeMounts:
           - name: device-plugin
             mountPath: /var/lib/kubelet/device-plugins
